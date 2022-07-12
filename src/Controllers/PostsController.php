@@ -1,7 +1,9 @@
 <?php
 namespace App\Controllers;
 
+use App\Models\CommentsModel;
 use App\Models\PostsModel;
+use DateTime;
 
 class PostsController extends Controller
 {
@@ -30,11 +32,23 @@ class PostsController extends Controller
     {
         // On instancie le modèle
         $postsModel = new PostsModel;
-
         // On va chercher 1 annonce
         $post = $postsModel->find($id);
 
+        $commentModel = new CommentsModel;
+        $postComments = $commentModel->findBy(['post_id' => $id]);
+        if (isset($_SESSION['user']) && !empty($_SESSION['user']['id'])) {
+            if (isset($_POST['comment']) && !empty($_POST['comment'])) {
+                $content = strip_tags($_POST['comment']);
+                $commentModel->setContent($content)
+                             ->setUserId($_SESSION['user']['id'])
+                             ->setPostId($id);
+                $commentModel->create(); 
+                header(('Location: /posts/show/'.$id));
+            }
+        }
+
         // On envoie à la vue
-        $this->twig->display('posts/show.html.twig', compact('post'));
+        $this->twig->display('posts/show.html.twig', compact('post', 'postComments'));
     }
 }

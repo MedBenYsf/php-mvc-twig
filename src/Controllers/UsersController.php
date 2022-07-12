@@ -11,6 +11,7 @@ class UsersController extends Controller
      * @return void 
      */
     public function login(){
+        unset($_SESSION['erreur']);
         // On vérifie si le formulaire est complet
         if(isset($_POST['email']) && !empty($_POST['email']) && isset($_POST['password']) && !empty($_POST['password'])){
             // On va chercher dans la base de données l'utilisateur avec l'email entré
@@ -29,8 +30,7 @@ class UsersController extends Controller
             $user = $usersModel->hydrate($userArray);
 
             // On vérifie si le mot de passe est correct
-            //if(password_verify($_POST['password'], $user->getPassword())){
-            if($_POST['password'] === $user->getPassword()){
+            if(password_verify($_POST['password'], $user->getPassword())){
                 // Le mot de passe est bon
                 // On crée la session
                 $user->setSession();
@@ -49,11 +49,44 @@ class UsersController extends Controller
     }
 
     /**
+     * Inscription des utilisateurs
+     * @return void 
+     */
+    public function register()
+    {
+        // On vérifie si le formulaire est valide
+        if(isset($_POST['email']) && !empty($_POST['email']) && isset($_POST['password']) && !empty($_POST['password'])){
+            // On "nettoie" l'adresse email
+            $email = strip_tags($_POST['email']);
+
+            // On chiffre le mot de passe
+            $pass = password_hash($_POST['password'], PASSWORD_ARGON2I);
+
+            // On hydrate l'utilisateur
+            $user = new UsersModel;
+
+            $user->setEmail($email)
+                ->setPassword($pass)
+            ;
+
+            // On stocke l'utilisateur
+            $user->create();
+            unset($_SESSION['erreur']);
+            $_SESSION['message'] = "Votre compte a bien été crée";
+            header('Location: /users/login');
+        }
+
+        $this->twig->display('users/register.html.twig');     
+    }
+
+    /**
      * Déconnexion de l'utilisateur
      * @return exit 
      */
     public function logout(){
         unset($_SESSION['user']);
+        unset($_SESSION['message']);
+        unset($_SESSION['erreur']);
         header('Location: /users/login');
         exit;
     }
