@@ -11,26 +11,20 @@
             {{ session.message}}
         </div>
     {% endif %}
-    <h2>Création de compte</h2>
+    <h2>Mon profil</h2>
     <form method="post">
         <div class="form-group">
             <label for="firstName">First name</label>
-            <input type="text" name="firstName" class="form-control">
+            <input type="text" name="firstName" class="form-control" value="{{session.user.first_name}}" disabled>
         </div>
         <div class="form-group">
             <label for="lastName">Last name</label>
-            <input type="text" name="lastName" class="form-control">
+            <input type="text" name="lastName" class="form-control" value="{{session.user.last_name}}" disabled>
         </div>
         <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" name="email" class="form-control">
+            <input type="email" name="email" class="form-control" value="{{session.user.email}}" disabled>
         </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Valider</button>
     </form>
-    <a href="/users/login" class="btn btn-default mt-2">Se connecter</a>
     
 {% endblock %}

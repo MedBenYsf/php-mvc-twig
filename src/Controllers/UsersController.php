@@ -55,8 +55,14 @@ class UsersController extends Controller
     public function register()
     {
         // On vérifie si le formulaire est valide
-        if(isset($_POST['email']) && !empty($_POST['email']) && isset($_POST['password']) && !empty($_POST['password'])){
+        if(
+            isset($_POST['firstName']) && !empty($_POST['firstName']) &&
+            isset($_POST['lastName']) && !empty($_POST['lastName']) &&
+            isset($_POST['email']) && !empty($_POST['email']) &&
+            isset($_POST['password']) && !empty($_POST['password'])){
             // On "nettoie" l'adresse email
+            $firstName = strip_tags($_POST['firstName']);
+            $lastName = strip_tags($_POST['lastName']);
             $email = strip_tags($_POST['email']);
 
             // On chiffre le mot de passe
@@ -65,7 +71,9 @@ class UsersController extends Controller
             // On hydrate l'utilisateur
             $user = new UsersModel;
 
-            $user->setEmail($email)
+            $user->setFirst_name($firstName)
+                ->setLast_name($lastName)
+                ->setEmail($email)
                 ->setPassword($pass)
             ;
 
@@ -79,6 +87,10 @@ class UsersController extends Controller
         $this->twig->display('users/register.html.twig');     
     }
 
+    public function profil()
+    {
+        $this->twig->display('users/profil.html.twig');     
+    }
     /**
      * Déconnexion de l'utilisateur
      * @return exit 
