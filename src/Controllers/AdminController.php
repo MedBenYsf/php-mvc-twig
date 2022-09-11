@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Models\CommentsModel;
+use App\Models\PostsModel;
 use App\Models\UsersModel;
 
 class AdminController extends Controller
@@ -14,7 +15,17 @@ class AdminController extends Controller
 
     public function posts() {
         if($this->isAdmin()){
-            $this->twig->display('admin/posts/index.html.twig');     
+            $postModel = new PostsModel;
+            $allPosts = $postModel->findAll();
+
+            if (isset($_POST['supprimer'])) {
+                $postId = $_POST['postId'];
+                $postModel->delete($postId);
+                header(('Location: /admin/posts'));
+            }
+
+
+            $this->twig->display('admin/posts/index.html.twig', ['posts' => $allPosts]);     
         }
     }
 
@@ -42,6 +53,48 @@ class AdminController extends Controller
         }
     }
 
+    public function add() {
+        if($this->isAdmin()){
+            $postModel = new PostsModel;
+
+            if (isset($_POST['title']) && !empty($_POST['title']) && isset($_POST['content']) && !empty($_POST['content']) ) {
+                $title = strip_tags($_POST['title']);
+                $content = strip_tags($_POST['content']);
+                $postModel
+                    ->settitle($title)
+                    ->setContent($content)
+                    ->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'))
+                    ->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+                
+                $postModel->create();
+                header(('Location: /admin/posts'));
+            }
+            $this->twig->display('admin/posts/add.html.twig');     
+        }
+    }
+
+    public function update(int $id) {
+        if($this->isAdmin()){
+            $postModel = new PostsModel;
+            $postArray = $postModel->find($id);
+            $post = $postModel->hydrate($postArray);
+
+            if (isset($_POST['title']) && !empty($_POST['title']) && isset($_POST['content']) && !empty($_POST['content']) ) {
+                $title = strip_tags($_POST['title']);
+                $content = strip_tags($_POST['content']);
+                $post
+                    ->setTitle($title)
+                    ->setContent($content)
+                    ->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+                
+                $post->update();
+                header(('Location: /admin/posts'));
+            }
+        
+        $this->twig->display('admin/posts/update.html.twig', ['post' => $post]);     
+        }
+
+    }
 
 
         /**
