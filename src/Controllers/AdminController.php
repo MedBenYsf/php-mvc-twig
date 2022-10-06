@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Models\CommentsModel;
 use App\Models\PostsModel;
 use App\Models\UsersModel;
+use App\Utils\FilterInput;
 
 class AdminController extends Controller
 {
@@ -18,8 +19,8 @@ class AdminController extends Controller
             $postModel = new PostsModel;
             $allPosts = $postModel->findAll();
 
-            if (isset($_POST['supprimer'])) {
-                $postId = $_POST['postId'];
+            if (FilterInput::getInput($_POST, 'supprimer')) {
+                $postId = strip_tags(FilterInput::getInput($_POST, 'postId'));
                 $postModel->delete($postId);
                 header(('Location: /admin/posts'));
             }
@@ -33,8 +34,8 @@ class AdminController extends Controller
         if($this->isAdmin()){
             $commentModel = new CommentsModel;
 
-            if (isset($_POST['valider'])) {
-                $commentId = $_POST['commentId'];
+            if (FilterInput::getInput($_POST, 'valider')) {
+                $commentId = strip_tags(FilterInput::getInput($_POST, 'commentId'));
                 $commentArray = $commentModel->find($commentId);
                 if($commentArray){
                     $comment = $commentModel->hydrate($commentArray);
@@ -42,8 +43,8 @@ class AdminController extends Controller
                     $comment->update();
                 }
                 header(('Location: /admin/comments'));
-            } elseif (isset($_POST['supprimer'])) {
-                $commentId = $_POST['commentId'];
+            } elseif (FilterInput::getInput($_POST, 'supprimer')) {
+                $commentId = strip_tags(FilterInput::getInput($_POST, 'commentId'));
                 $commentModel->delete($commentId);
                 header(('Location: /admin/comments'));
             }
@@ -57,9 +58,9 @@ class AdminController extends Controller
         if($this->isAdmin()){
             $postModel = new PostsModel;
 
-            if (isset($_POST['title']) && !empty($_POST['title']) && isset($_POST['content']) && !empty($_POST['content']) ) {
-                $title = strip_tags($_POST['title']);
-                $content = strip_tags($_POST['content']);
+            if (FilterInput::getInput($_POST, 'title') && FilterInput::getInput($_POST, 'content')) {
+                $title = strip_tags(FilterInput::getInput($_POST, 'title'));
+                $content = strip_tags(FilterInput::getInput($_POST, 'content'));
                 $postModel
                     ->settitle($title)
                     ->setContent($content)
@@ -79,9 +80,9 @@ class AdminController extends Controller
             $postArray = $postModel->find($id);
             $post = $postModel->hydrate($postArray);
 
-            if (isset($_POST['title']) && !empty($_POST['title']) && isset($_POST['content']) && !empty($_POST['content']) ) {
-                $title = strip_tags($_POST['title']);
-                $content = strip_tags($_POST['content']);
+            if (FilterInput::getInput($_POST, 'title') && FilterInput::getInput($_POST, 'content')) {
+                $title = strip_tags(FilterInput::getInput($_POST, 'title'));
+                $content = strip_tags(FilterInput::getInput($_POST, 'content'));
                 $post
                     ->setTitle($title)
                     ->setContent($content)
